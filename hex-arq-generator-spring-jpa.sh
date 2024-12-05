@@ -42,22 +42,30 @@ YML_FILE="src/main/resources/application.yml"
 # Create the YAML file with the specified content
 cat > $YML_FILE <<EOL
 spring:
+  main:
+    allow-bean-definition-overriding: true
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: America/Bogota
   servlet:
-    context-path: /api/hotel
+    context-path: /api/learning
   application:
-    name: reservations
+    name: e-learning
   jpa:
     hibernate:
       ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  datasource.url: ""
-  datasource.username: ""
-  datasource.password: ""
+  datasource:
+    url: jdbc:postgresql://localhost:5432/e-learning\
+    username: learning
+    password: learning
+    hikari:
+      auto-commit: true
+      max-lifetime: 1000
+      maximum-pool-size: 10
+      connection-timeout: 2000
 server:
   port: 8085
 EOL
