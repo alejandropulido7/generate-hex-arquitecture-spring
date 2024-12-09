@@ -14,8 +14,7 @@ echo "Creating Hexagonal Architecture Folder Structure in $ARTIFACT..."
 
 # Create main project structure
 create_dir "src/main/java/$GROUP/$ARTIFACT/application/config/security"
-create_dir "src/main/java/$GROUP/$ARTIFACT/application/useCases/service1"
-create_dir "src/main/java/$GROUP/$ARTIFACT/application/useCases/service2"
+create_dir "src/main/java/$GROUP/$ARTIFACT/application/useCase"
 
 create_dir "src/main/java/$GROUP/$ARTIFACT/domain/gateway"
 create_dir "src/main/java/$GROUP/$ARTIFACT/domain/model/exceptions"
@@ -23,6 +22,7 @@ create_dir "src/main/java/$GROUP/$ARTIFACT/domain/model"
 create_dir "src/main/java/$GROUP/$ARTIFACT/domain/ports/in"
 create_dir "src/main/java/$GROUP/$ARTIFACT/domain/ports/out"
 
+create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/transformers"
 create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/out/persistence/config"
 create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/out/persistence/service1"
 
@@ -36,14 +36,20 @@ echo "Hexagonal Architecture Folder Structure created successfully in root direc
 
 PORTS_IN="src/main/java/$GROUP/$ARTIFACT/domain/ports/in/example.java"
 
-cat > $YML_FILE <<EOL
+cat > $PORTS_IN <<EOL
 Used by Controller (Adapter/in) and implemented by UseCase
 EOL
 
-PORTS_IN="src/main/java/$GROUP/$ARTIFACT/domain/ports/out/example.java"
+PORTS_OUT="src/main/java/$GROUP/$ARTIFACT/domain/ports/out/example.java"
 
-cat > $YML_FILE <<EOL
+cat > $PORTS_OUT <<EOL
 Used by UseCase and implemented by Adapter/out
+EOL
+
+USECASE="src/main/java/$GROUP/$ARTIFACT/application/useCase/example.java"
+
+cat > $USECASE <<EOL
+Implementation of port/in using port/out
 EOL
 
 echo "Creating application.yml..."
