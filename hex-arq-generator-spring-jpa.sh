@@ -17,23 +17,34 @@ create_dir "src/main/java/$GROUP/$ARTIFACT/application/config/security"
 create_dir "src/main/java/$GROUP/$ARTIFACT/application/useCases/service1"
 create_dir "src/main/java/$GROUP/$ARTIFACT/application/useCases/service2"
 
-create_dir "src/main/java/$GROUP/$ARTIFACT/domain/exceptions"
 create_dir "src/main/java/$GROUP/$ARTIFACT/domain/gateway"
-create_dir "src/main/java/$GROUP/$ARTIFACT/domain/model/service1"
-create_dir "src/main/java/$GROUP/$ARTIFACT/domain/model/service2"
+create_dir "src/main/java/$GROUP/$ARTIFACT/domain/model/exceptions"
+create_dir "src/main/java/$GROUP/$ARTIFACT/domain/model"
+create_dir "src/main/java/$GROUP/$ARTIFACT/domain/ports/in"
+create_dir "src/main/java/$GROUP/$ARTIFACT/domain/ports/out"
 
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/persistence/config"
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/persistence/service1"
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/persistence/service2"
+create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/out/persistence/config"
+create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/out/persistence/service1"
 
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/web/common"
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/web/service1"
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/web/service2"
+create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/in/web/common"
+create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/in/web/service1"
 
 rm "src/main/resources/application.properties"
 
 # Print completion message
 echo "Hexagonal Architecture Folder Structure created successfully in root directory"
+
+PORTS_IN="src/main/java/$GROUP/$ARTIFACT/domain/ports/in/example.java"
+
+cat > $YML_FILE <<EOL
+Used by Controller (Adapter/in) and implemented by UseCase
+EOL
+
+PORTS_IN="src/main/java/$GROUP/$ARTIFACT/domain/ports/out/example.java"
+
+cat > $YML_FILE <<EOL
+Used by UseCase and implemented by Adapter/out
+EOL
 
 echo "Creating application.yml..."
 # Define the path for the YAML file
@@ -198,7 +209,7 @@ public class SecurityBeans {
 
         @Bean
         public PasswordEncoder passwordEncoder(){
-            return new BCryptPasswordEncoder();
+            return NoOpPasswordEncoder.getInstance();
         }
 }
 EOL
@@ -223,8 +234,9 @@ implementation 'org.mapstruct:mapstruct:1.6.3'
 annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 EOL
 
+echo "Creating exception advice example..."
 
-EXCEPTIONS_CONTROLLER="src/main/java/$GROUP/$ARTIFACT/adapters/web/common/ExceptionControllerAdvice.java"
+EXCEPTIONS_CONTROLLER="src/main/java/$GROUP/$ARTIFACT/adapters/in/web/common/ExceptionControllerAdvice.java"
 
 # Ensure the folder structure exists
 # shellcheck disable=SC2046
@@ -271,6 +283,59 @@ public class ExceptionControllerAdvice {
         response.put("message", "Validation error occurred");
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+}
+EOL
+
+echo "Creating rest template example..."
+
+REST_TEMPLATE="src/main/java/$GROUP/$ARTIFACT/adapters/rest/trivia/TriviaRepositoryAdapter.java"
+
+# Ensure the folder structure exists
+# shellcheck disable=SC2046
+mkdir -p $(dirname "$REST_TEMPLATE")
+
+# Create the Java file with the specified content
+cat > $REST_TEMPLATE <<EOL
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+@RequiredArgsConstructor
+public class TriviaRepositoryAdapter {
+
+    private final RestTemplate restTemplate;
+    private String uri = "https://opentdb.com/api.php";
+
+    public List<QuestionTrivia> questionTrivia(int amount){
+
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                uri+"?amount="+amount, HttpMethod.GET, null, String.class);
+
+        List<QuestionTrivia> questionTrivias = new ArrayList<>();
+        try{
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.getBody());
+            JsonNode results = root.path("results");
+            System.out.println(results.toString());
+            questionTrivias = mapper.readValue(results.toString(), new TypeReference<List<QuestionTrivia>>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return questionTrivias;
     }
 }
 EOL
