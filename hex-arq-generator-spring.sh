@@ -12,28 +12,38 @@ create_dir() {
 
 echo "Creating Hexagonal Architecture Folder Structure in $ARTIFACT..."
 
-# Create main project structure
 create_dir "src/main/java/$GROUP/$ARTIFACT/application/config/security"
 create_dir "src/main/java/$GROUP/$ARTIFACT/application/useCases/service1"
 create_dir "src/main/java/$GROUP/$ARTIFACT/application/useCases/service2"
 
-create_dir "src/main/java/$GROUP/$ARTIFACT/domain/exceptions"
 create_dir "src/main/java/$GROUP/$ARTIFACT/domain/gateway"
-create_dir "src/main/java/$GROUP/$ARTIFACT/domain/model/service1"
-create_dir "src/main/java/$GROUP/$ARTIFACT/domain/model/service2"
+create_dir "src/main/java/$GROUP/$ARTIFACT/domain/model/exceptions"
+create_dir "src/main/java/$GROUP/$ARTIFACT/domain/model"
+create_dir "src/main/java/$GROUP/$ARTIFACT/domain/ports/in"
+create_dir "src/main/java/$GROUP/$ARTIFACT/domain/ports/out"
 
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/persistence/config"
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/persistence/service1"
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/persistence/service2"
+create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/out/persistence/config"
+create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/out/persistence/service1"
 
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/web/common"
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/web/service1"
-create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/web/service2"
+create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/in/web/common"
+create_dir "src/main/java/$GROUP/$ARTIFACT/adapters/in/web/service1"
 
 rm "src/main/resources/application.properties"
 
 # Print completion message
 echo "Hexagonal Architecture Folder Structure created successfully in root directory"
+
+PORTS_IN="src/main/java/$GROUP/$ARTIFACT/domain/ports/in/example.java"
+
+cat > $YML_FILE <<EOL
+Used by Controller (Adapter/in) and implemented by UseCase
+EOL
+
+PORTS_IN="src/main/java/$GROUP/$ARTIFACT/domain/ports/out/example.java"
+
+cat > $YML_FILE <<EOL
+Used by UseCase and implemented by Adapter/out
+EOL
 
 echo "Creating application.yml..."
 # Define the path for the YAML file
@@ -237,7 +247,7 @@ implementation 'org.springframework.boot:spring-boot-starter-validation'
 implementation 'org.springframework.boot:spring-boot-starter-security'
 EOL
 
-INITIALIZE_DB="src/main/java/$GROUP/$ARTIFACT/adapters/persistence/config/InitializeDB.java"
+INITIALIZE_DB="src/main/java/$GROUP/$ARTIFACT/adapters/out/persistence/config/InitializeDB.java"
 
 # Ensure the folder structure exists
 # shellcheck disable=SC2046
@@ -268,7 +278,7 @@ public class InitializeDB {
 EOL
 
 
-EXCEPTIONS_CONTROLLER="src/main/java/$GROUP/$ARTIFACT/adapters/web/common/ExceptionControllerAdvice.java"
+EXCEPTIONS_CONTROLLER="src/main/java/$GROUP/$ARTIFACT/adapters/in/web/common/ExceptionControllerAdvice.java"
 
 # Ensure the folder structure exists
 # shellcheck disable=SC2046
